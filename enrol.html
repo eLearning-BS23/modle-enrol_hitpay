@@ -1,0 +1,76 @@
+<h3><?php print_string("paymentrequired") ?></h3>
+<p><b><?php echo get_string('cost', 'enrol_hitpay').": {$instance->currency} {$localisedcost}"; ?></b></p>
+
+<p><?php print_string("paymentinstant") ?></p>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 order-md-1">
+            <form action="hitpay/checkout_hosted.php" method="POST" class="needs-validation">
+                <input type="hidden" name="customer_name" class="form-control" id="customer_name" placeholder=""
+                       value="<?php echo $USER->firstname . ' ' . $USER->lastname; ?>">
+                <input type="hidden" name="customer_mobile" class="form-control" id="mobile" placeholder="Mobile"
+                       value="<?php echo $USER->phone1; ?>">
+
+                <input type="hidden" name="customer_email" class="form-control" id="email"
+                       value="<?php echo $USER->email; ?>">
+
+                <input type="hidden" class="form-control" id="address" name="customer_address"
+                       value="<?php echo $USER->address; ?>">
+                <input type="hidden" name="customer_country" value="<?php echo $USER->country; ?>">
+                <input type="hidden" name="state" value="<?php echo $USER->state ?? ""; ?>">
+
+                <input type="hidden" value="<?=p($cost) ?>" name="amount" id="total_amount" required/>
+                <input type="hidden" value="<?php echo $course->fullname; ?>" name="coursename" id="coursename" required/>
+                <!--                <input type="hidden" value="<?php echo $category->id; ?>" name="categoryid" id="categoryid" required/>-->
+                <input type="hidden" value="<?php echo $USER->id; ?>" name="userid" id="userid" required/>
+
+                <input type="hidden" name="cmd" value="_xclick" />
+                <input type="hidden" name="charset" value="utf-8" />
+                <input type="hidden" name="business" value="<?php p($this->get_config('hitpaybusiness'))?>" />
+                <input type="hidden" name="store_id" value="<?php p($this->get_config('sslstoreid'))?>" />
+                <input type="hidden" name="item_name" value="<?php p($coursefullname) ?>" />
+                <input type="hidden" name="item_number" value="<?php p($courseshortname) ?>" />
+                <input type="hidden" name="quantity" value="1" />
+                <input type="hidden" name="on0" value="<?php print_string("user") ?>" />
+                <input type="hidden" name="os0" value="<?php p($userfullname) ?>" />
+                <input type="hidden" name="course_id" value="<?php echo $course->id; ?>" />
+
+                <input type="hidden" name="instance_id" value="<?php echo $instance->id; ?>" />
+                <input type="hidden" name="custom" value="<?php echo "{$USER->id}-{$course->id}-{$instance->id}" ?>" />
+                <input type="hidden" name="currency_code" value="<?php p($instance->currency) ?>" />
+
+                <input type="hidden" name="for_auction" value="false" />
+                <input type="hidden" name="no_note" value="1" />
+                <input type="hidden" name="no_shipping" value="1" />
+                <input type="hidden" name="rm" value="2" />
+                <input type="hidden" name="cbt" value="<?php print_string("continuetocourse") ?>" />
+
+
+                <button class="paynowbutton" type="submit"><?php echo get_string('button_name', 'enrol_hitpay')?></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    <?php
+    include 'style_enrol_hitpay.css';
+    ?>
+</style>
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://sandbox.hitpay.com/embed.min.js?" + Math.random().toString(36).substring(7);
+            tag.parentNode.insertBefore(script, tag);
+        };
+
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+<?php
+
+
+echo html_writer::end_div();
+?>
