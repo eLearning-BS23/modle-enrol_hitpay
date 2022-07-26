@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'HitPay\\' => array($baseDir . '/classes'),
+    'HitPay\\' => array($baseDir . '/../classes'),
 );

@@ -16,7 +16,7 @@ class ComposerStaticInit7fa6c76da09e41ed03b4e564933c44d4
     public static $prefixDirsPsr4 = array (
         'HitPay\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/classes',
+            0 => __DIR__ . '/../..' . '/../classes',
         ),
     );
 
