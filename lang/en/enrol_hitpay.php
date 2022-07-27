@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-//$string['assignrole'] = 'Assign role';
+$string['assignrole'] = 'Assign role';
 
 $string['apikey'] = 'Api Key';
 $string['apikey_desc'] = 'HitPay Api Key';
