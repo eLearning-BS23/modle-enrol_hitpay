@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'enrol_hitpay';    // Full name of the plugin (used for diagnostics).
-$plugin->version = 2022072500;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version = 2022072501;        // The current plugin version (Date: YYYYMMDDXX).
 //$plugin->release = '1.0.0';
 $plugin->requires = 2020061509;        // Requires this Moodle version.
 //$plugin->maturity = MATURITY_STABLE;
