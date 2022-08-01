@@ -14,20 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 require_once("../../config.php");
 
-
-use hitpay\hitpayNotification;
 global $DB, $USER, $OUTPUT, $CFG, $PAGE;
 
-require_once(__DIR__ . "/hitpay/lib/hitpayNotification.php");
-include_once(__DIR__ . "/hitpay/OrderTransaction.php");
-
-
-    $instanceid = $_POST['value_d'];
-    $userid = $_POST['value_a'];
-    $courseid =  $_POST['value_c'];
 
     $plugin = enrol_get_plugin('hitpay');
     $plugininstance= $DB->get_record("enrol", array("id" => $instanceid, "enrol" => "hitpay", "status" => 0));

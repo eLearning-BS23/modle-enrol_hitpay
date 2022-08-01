@@ -1,28 +1,4 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-/**
- * hitpay enrolment plugin - support for user self unenrolment.
- *
- * @package    enrol_hitpay
- * @copyright  2021 Brain station 23 ltd.
- * @author     Brain station 23 ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -40,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * hitpay enrolments plugin settings and presets.
+ * hitpay enrolments Checkout page.
  *
  * @package    enrol_hitpay
  * @copyright  2021 Brain station 23 ltd.
@@ -48,27 +24,40 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use HitPay\Client;
-use HitPay\Request;
+use enrol_hitpay\hitpay_helper;
 
-require_once '.extlib/vendor/autoload.php';
+require_once ('../../config.php');
 
-$apiKey = 'ac0581fa1e46648f98c1c0a05711e636e1d96bb111448bc739259b31c5fce40f';
-$salt = 'nATAXAziQwcvg1Rxtg025UrVrShVOkcbwijtgw0r9yz0q9Q6hrhz4FUR5RvtwoB8';
+global $DB;
 
-$hitPayClient = new Client($apiKey, false);
+$config         = get_config('enrol_hitpay');
 
-try {
-    $request = new Request\CreatePayment();
+$cost           = required_param('amount',PARAM_FLOAT);
+$currency       = required_param('currency_code',PARAM_RAW);
+$email          = required_param('email',PARAM_RAW);
+$courseid      = required_param('course_id', PARAM_RAW);
+$userid        = required_param('userid', PARAM_INT);
+$instanceid    = required_param('instance_id',PARAM_INT);
+$fullname       = required_param('name',PARAM_RAW);
+$number         = required_param('mobile',PARAM_INT);
+$address        = required_param('address',PARAM_RAW);
+$coursename     = required_param('coursename',PARAM_RAW);
 
-    $request->setAmount(66)
-        ->setCurrency('SGD');
+//var_dump($courseid); die();
+$apiKey = $config->apikey;
+$apiurl = $config->apiurl;
+$hitpay_helper = new hitpay_helper($apiKey, $apiurl, $currency, $cost, $email);
+$checkout = $hitpay_helper->checkout_helper();
+$checkout = json_decode($checkout);
+$timeupdated = time();
 
-    $result = $hitPayClient->createPayment($request);
-    print_r($result);
+$SQL = "INSERT INTO {enrol_hitpay_log}
+        (courseid, coursename, userid, instanceid, currency,
+        cost, payment_status, name, address, mobile, email, timeupdated)
+        VALUES
+        ($courseid, '$coursename', $userid,$instanceid, '$currency',
+            $cost, 'pending','$fullname', '$address',$number,'$email',$timeupdated)";
 
-    header('Location: ' . $result->url);
+$DB->execute($SQL);
 
-} catch (\Exception $e) {
-    print_r($e->getMessage());
-}
+header('Location: ' . $checkout->url);

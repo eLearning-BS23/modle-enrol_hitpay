@@ -45,9 +45,6 @@ $string['button_name'] = 'PAY NOW';
 $string['paymentpage'] = 'Payment Page';
 $string['RMB'] = 'Chinese Yuan';
 
-
-
-
 $string['cost'] = 'Enrol cost';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
