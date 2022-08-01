@@ -15,23 +15,49 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
- * Various helper methods for interacting with the portwallet API
+ * Various helper methods for interacting with the hitpay checkout.
  *
- * @package    paygw_portwallet
- * @copyright  2021 Brain station 23 ltd.
+ * @package    enrol_hitpay
+ * @copyright  2022 Brain station 23 ltd.
  * @author     Brain station 23 ltd.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace enrol_hitpay;
 
-use HitPay\Request\CreatePayment;
-use HitPay\Request;
-use HitPay\Response\CreatePayment as CreatePaymentResponse;
-use HitPay\Response\DeletePaymentRequest;
-use HitPay\Response\PaymentStatus;
-use HitPay\Response\Refund;
-use HitPay\Client;
+class hitpay_helper {
 
-require_once(__DIR__ . '/../.extlib/vendor/autoload.php');
+    public function __construct(string $apiKey, string $apiurl, string $currency, float $cost, string $email)
+    {
+        $this->apiKey = $apiKey;
+        $this->apiurl = $apiurl;
+        $this->currency = $currency;
+        $this->cost = $cost;
+        $this->email = $email;
+    }
 
+    public function checkout_helper () {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->apiurl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "amount=". $this->cost ."&currency=".$this->currency."&email=".$this->email);
+
+        $headers = array();
+        $headers[] = 'X-Business-Api-Key: '. $this->apiKey;
+        $headers[] = 'X-Requested-With: XMLHttpRequest';
+        $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
+        curl_close($ch);
+
+        return $result;
+    }
+}

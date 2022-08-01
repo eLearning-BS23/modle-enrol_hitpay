@@ -350,7 +350,7 @@ class enrol_hitpay_plugin extends enrol_plugin {
             'AED', 'AUD', 'BRL', 'CAD', 'CHF', 'DKK', 'EUR',
             'GBP', 'HKD', 'IDR', 'INR', 'JPY', 'KRW', 'MYR',
             'MXN', 'NOK', 'NZD', 'PLN', 'RMB', 'RUB', 'SEK',
-            'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR');
+            'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR', 'SGD');
 
         $currencies = array();
         foreach ($codes as $c) {
