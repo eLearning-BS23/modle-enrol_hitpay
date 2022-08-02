@@ -34,15 +34,17 @@ class hitpay_helper {
         $this->currency = $currency;
         $this->cost = $cost;
         $this->email = $email;
+
     }
 
     public function checkout_helper () {
+        global $CFG;
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $this->apiurl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "amount=". $this->cost ."&currency=".$this->currency."&email=".$this->email);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "amount=". $this->cost ."&currency=".$this->currency."&email=".$this->email."&redirect_url=".$CFG->wwwroot.'/enrol/hitpay/success.php');
 
         $headers = array();
         $headers[] = 'X-Business-Api-Key: '. $this->apiKey;

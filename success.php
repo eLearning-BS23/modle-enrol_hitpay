@@ -15,28 +15,40 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once("../../config.php");
+//require_once ("checkout.php");
 
 global $DB, $USER, $OUTPUT, $CFG, $PAGE;
 
+$status = required_param('status', PARAM_TEXT);
+$reference= required_param('reference', PARAM_RAW);
+$courseid= required_param('courseid', PARAM_INT);
 
-    $plugin = enrol_get_plugin('hitpay');
-    $plugininstance= $DB->get_record("enrol", array("id" => $instanceid, "enrol" => "hitpay", "status" => 0));
-    $plugin->enrol_user($plugininstance, $userid, $plugininstance->roleid);
-
-
-    $tran_id        = required_param('tran_id', PARAM_TEXT);
-
-    $sslc = new hitpayNotification();
-    $ot = new OrderTransaction();
-    $sql = $ot->getRecordQuery($tran_id);
-    $row = $DB->get_record_sql($sql);
-
-    if ($row->payment_status == 'Pending' || $row->payment_status == 'Processing') {
-        $sql = $ot->updateTransactionQuery($tran_id, 'Processing');
-        $DB->execute($sql);
-        $url = new moodle_url('/course/view.php?id='. $courseid);
-        redirect($url);
-
-    }
+//var_dump($status);
+//var_dump($reference); die();
+$config = get_config('enrol_hitpay');
+$get_url = $config->apiurl;
+var_dump($courseid); die;
 
 
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, $get_url.'/'.$reference);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+
+$headers = array();
+$headers[] = 'X-Business-Api-Key:'.$config->apikey;
+$headers[] = 'X-Requested-With: XMLHttpRequest';
+$headers[] = 'Content-Type: application/x-www-form-urlencoded';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
+
+var_dump($result); die();
+//var_dump($COURSE->id); die();
+
+//amount, currency, user check if it's same as before...
