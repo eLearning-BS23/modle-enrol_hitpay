@@ -27,22 +27,25 @@ namespace enrol_hitpay;
 
 class hitpay_helper {
 
-    public function __construct(string $apiKey, string $apiurl, string $currency, float $cost, string $email)
-    {
+    public function __construct(string $apiKey, string $apiurl, string $currency, float $cost, string $email, int $courseid, int $instanceid) {
         $this->apiKey = $apiKey;
         $this->apiurl = $apiurl;
         $this->currency = $currency;
         $this->cost = $cost;
         $this->email = $email;
+        $this->courseid = $courseid;
+        $this->instanceid = $instanceid;
     }
 
     public function checkout_helper () {
+        global $CFG, $USER;
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $this->apiurl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, "amount=". $this->cost ."&currency=".$this->currency."&email=".$this->email);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "amount=". $this->cost ."&currency=".$this->currency."&email=".$this->email."&name=".$USER->username."&redirect_url=".$CFG->wwwroot.'/enrol/hitpay/success.php?data='.$this->courseid.'_'.$this->instanceid.'_'.$this->currency.'_'.$this->cost);
 
         $headers = array();
         $headers[] = 'X-Business-Api-Key: '. $this->apiKey;

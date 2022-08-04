@@ -18,25 +18,73 @@ require_once("../../config.php");
 
 global $DB, $USER, $OUTPUT, $CFG, $PAGE;
 
+$status = required_param('status', PARAM_TEXT);
+$reference= required_param('reference', PARAM_RAW);
+$parameters= required_param('data', PARAM_RAW);
+$userid= $USER->id;
 
-    $plugin = enrol_get_plugin('hitpay');
-    $plugininstance= $DB->get_record("enrol", array("id" => $instanceid, "enrol" => "hitpay", "status" => 0));
-    $plugin->enrol_user($plugininstance, $userid, $plugininstance->roleid);
+$str_arr = preg_split ("/\_/", $parameters);
+$courseid = $str_arr[0];
+$instanceid = $str_arr[1];
+$currency = $str_arr[2];
+$amount = $str_arr[3];
 
+$config = get_config('enrol_hitpay');
+$get_url = $config->apiurl;
+//var_dump($get_url);
+//die();
+$ch = curl_init();
 
-    $tran_id        = required_param('tran_id', PARAM_TEXT);
+curl_setopt($ch, CURLOPT_URL, $get_url.$reference);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
-    $sslc = new hitpayNotification();
-    $ot = new OrderTransaction();
-    $sql = $ot->getRecordQuery($tran_id);
-    $row = $DB->get_record_sql($sql);
+$headers = array();
+$headers[] = 'X-Business-Api-Key:'.$config->apikey;
+$headers[] = 'X-Requested-With: XMLHttpRequest';
+$headers[] = 'Content-Type: application/x-www-form-urlencoded';
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-    if ($row->payment_status == 'Pending' || $row->payment_status == 'Processing') {
-        $sql = $ot->updateTransactionQuery($tran_id, 'Processing');
-        $DB->execute($sql);
-        $url = new moodle_url('/course/view.php?id='. $courseid);
-        redirect($url);
+$result = curl_exec($ch);
+if (curl_errno($ch)) {
+    echo 'Error:' . curl_error($ch);
+}
+curl_close($ch);
 
+$result = json_decode($result);
+
+if ($reference == $result->id && $result->payments[0]->status == 'succeeded' && $result->payments[0]->currency==strtolower($currency) && $result->payments[0]->amount==$amount && $USER->username == $result->payments[0]->buyer_name) {
+    $condition = array();
+    $condition['courseid'] = $courseid;
+    $condition['instanceid'] = $instanceid;
+    $condition['userid'] = $userid;
+
+    if($DB->record_exists('enrol_hitpay_log', $condition)) {
+       $data = (object) array (
+           'courseid' => $courseid,
+           'userid' => $userid,
+           'instanceid' => $instanceid,
+           'currency' => $currency,
+           'amount' => $amount,
+           'status' => $result->payments[0]->status,
+           'reference' => $reference,
+           'payment_id' => $result->payments[0]->id,
+           'username' => $result->payments[0]->buyer_name,
+           'created_at' => $result->payments[0]->created_at,
+           'updated_at' => $result->payments[0]->updated_at
+       );
+
+     if($DB->insert_record('enrol_hitpay', $data)){
+
+         $plugin = enrol_get_plugin('hitpay');
+         $plugininstance= $DB->get_record("enrol", array("id" => $instanceid, "enrol" => "hitpay", "status" => 0));
+         $plugin->enrol_user($plugininstance, $userid, $plugininstance->roleid);
+         $url = new moodle_url('/course/view.php?id='. $courseid);
+         redirect($url);
+     }
     }
-
-
+    else {
+            $url = new moodle_url('/course/view.php?id='. $courseid);
+            redirect($url);
+    }
+}
