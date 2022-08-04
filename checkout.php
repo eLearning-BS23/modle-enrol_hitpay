@@ -46,9 +46,10 @@ $coursename     = required_param('coursename',PARAM_RAW);
 
 $apiKey = $config->apikey;
 $apiurl = $config->apiurl;
-$hitpay_helper = new hitpay_helper($apiKey, $apiurl, $currency, $cost, $email);
+$hitpay_helper = new hitpay_helper($apiKey, $apiurl, $currency, $cost, $email, $courseid, $instanceid);
 
 $checkout = $hitpay_helper->checkout_helper();
+//var_dump($checkout); die;
 $checkout = json_decode($checkout);
 //var_dump($checkout); die;
 $timeupdated = time();
@@ -61,4 +62,6 @@ $SQL = "INSERT INTO {enrol_hitpay_log}
             $cost, 'pending','$fullname', '$address',$number,'$email',$timeupdated)";
 
 $DB->execute($SQL);
+
+
 header('Location: ' . $checkout->url);

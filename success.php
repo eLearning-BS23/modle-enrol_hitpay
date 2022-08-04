@@ -15,24 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once("../../config.php");
-//require_once ("checkout.php");
 
 global $DB, $USER, $OUTPUT, $CFG, $PAGE;
 
 $status = required_param('status', PARAM_TEXT);
 $reference= required_param('reference', PARAM_RAW);
-$courseid= required_param('courseid', PARAM_INT);
+$parameters= required_param('data', PARAM_RAW);
+$userid= $USER->id;
 
-//var_dump($status);
-//var_dump($reference); die();
+$str_arr = preg_split ("/\_/", $parameters);
+$courseid = $str_arr[0];
+$instanceid = $str_arr[1];
+$currency = $str_arr[2];
+$amount = $str_arr[3];
+
 $config = get_config('enrol_hitpay');
 $get_url = $config->apiurl;
-var_dump($courseid); die;
-
-
+//var_dump($get_url);
+//die();
 $ch = curl_init();
 
-curl_setopt($ch, CURLOPT_URL, $get_url.'/'.$reference);
+curl_setopt($ch, CURLOPT_URL, $get_url.$reference);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
@@ -48,7 +51,40 @@ if (curl_errno($ch)) {
 }
 curl_close($ch);
 
-var_dump($result); die();
-//var_dump($COURSE->id); die();
+$result = json_decode($result);
 
-//amount, currency, user check if it's same as before...
+if ($reference == $result->id && $result->payments[0]->status == 'succeeded' && $result->payments[0]->currency==strtolower($currency) && $result->payments[0]->amount==$amount && $USER->username == $result->payments[0]->buyer_name) {
+    $condition = array();
+    $condition['courseid'] = $courseid;
+    $condition['instanceid'] = $instanceid;
+    $condition['userid'] = $userid;
+
+    if($DB->record_exists('enrol_hitpay_log', $condition)) {
+       $data = (object) array (
+           'courseid' => $courseid,
+           'userid' => $userid,
+           'instanceid' => $instanceid,
+           'currency' => $currency,
+           'amount' => $amount,
+           'status' => $result->payments[0]->status,
+           'reference' => $reference,
+           'payment_id' => $result->payments[0]->id,
+           'username' => $result->payments[0]->buyer_name,
+           'created_at' => $result->payments[0]->created_at,
+           'updated_at' => $result->payments[0]->updated_at
+       );
+
+     if($DB->insert_record('enrol_hitpay', $data)){
+
+         $plugin = enrol_get_plugin('hitpay');
+         $plugininstance= $DB->get_record("enrol", array("id" => $instanceid, "enrol" => "hitpay", "status" => 0));
+         $plugin->enrol_user($plugininstance, $userid, $plugininstance->roleid);
+         $url = new moodle_url('/course/view.php?id='. $courseid);
+         redirect($url);
+     }
+    }
+    else {
+            $url = new moodle_url('/course/view.php?id='. $courseid);
+            redirect($url);
+    }
+}
