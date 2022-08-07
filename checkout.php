@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,27 +30,24 @@ require_once ('../../config.php');
 global $DB;
 
 $config         = get_config('enrol_hitpay');
-
-$cost           = required_param('amount',PARAM_FLOAT);
-$currency       = required_param('currency_code',PARAM_RAW);
-$email          = required_param('email',PARAM_RAW);
+$cost           = required_param('amount', PARAM_FLOAT);
+$currency       = required_param('currency_code', PARAM_RAW);
+$email          = required_param('email', PARAM_RAW);
 $courseid       = required_param('course_id', PARAM_INT);
 $userid         = required_param('userid', PARAM_INT);
-$instanceid     = required_param('instance_id',PARAM_INT);
-$fullname       = required_param('name',PARAM_RAW);
-$number         = required_param('mobile',PARAM_INT);
-$address        = required_param('address',PARAM_RAW);
-$coursename     = required_param('coursename',PARAM_RAW);
+$instanceid     = required_param('instance_id', PARAM_INT);
+$fullname       = required_param('name', PARAM_RAW);
+$number         = required_param('mobile', PARAM_INT);
+$address        = required_param('address', PARAM_RAW);
+$coursename     = required_param('coursename', PARAM_RAW);
 
 
 $apiKey = $config->apikey;
 $apiurl = $config->apiurl;
-$hitpay_helper = new hitpay_helper($apiKey, $apiurl, $currency, $cost, $email, $courseid, $instanceid);
 
+$hitpay_helper = new hitpay_helper($apiKey, $apiurl, $currency, $cost, $email, $courseid, $instanceid);
 $checkout = $hitpay_helper->checkout_helper();
-//var_dump($checkout); die;
 $checkout = json_decode($checkout);
-//var_dump($checkout); die;
 $timeupdated = time();
 
 $SQL = "INSERT INTO {enrol_hitpay_log}
@@ -62,6 +58,5 @@ $SQL = "INSERT INTO {enrol_hitpay_log}
             $cost, 'pending','$fullname', '$address',$number,'$email',$timeupdated)";
 
 $DB->execute($SQL);
-
 
 header('Location: ' . $checkout->url);

@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * hitpay enrolments Success page.
+ *
+ * @package    enrol_hitpay
+ * @copyright  2022 Brain station 23 ltd.
+ * @author     Brain station 23 ltd.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once("../../config.php");
 
 global $DB, $USER, $OUTPUT, $CFG, $PAGE;
@@ -30,12 +39,12 @@ $currency = $str_arr[2];
 $amount = $str_arr[3];
 
 $config = get_config('enrol_hitpay');
-$get_url = $config->apiurl;
-//var_dump($get_url);
-//die();
-$ch = curl_init();
 
-curl_setopt($ch, CURLOPT_URL, $get_url.$reference);
+$prod_env = $config->productionenv;
+$apiurl = $config->apiurl;
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $apiurl.$reference);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 
