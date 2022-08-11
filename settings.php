@@ -40,14 +40,7 @@ if ($ADMIN->fulltree) {
         new lang_string('no'),
         new lang_string('yes'),
     );
-    $settings->add(new admin_setting_configselect('auth_cas/proxycas',
+    $settings->add(new admin_setting_configselect('enrol_hitpay/productionenv',
         new lang_string('productionenv', 'enrol_hitpay'),
         new lang_string('productionenv_desc', 'enrol_hitpay'), 0 , $yesno));
-
-    if($yesno == 'no') {
-        $apiurl = "https://api.sandbox.hit-pay.com/v1/payment-requests/";
-    }
-    else {
-        $apiurl ="https://api.hit-pay.com/v1/payment-requests/";
-    }
 }
