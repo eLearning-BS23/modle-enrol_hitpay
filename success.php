@@ -40,8 +40,14 @@ $amount = $str_arr[3];
 
 $config = get_config('enrol_hitpay');
 
-$prod_env = $config->productionenv;
-$apiurl = $config->apiurl;
+$productionenv = $config->productionenv;
+
+if($productionenv == 0) {
+    $apiurl = "https://api.sandbox.hit-pay.com/v1/payment-requests/";
+}
+else {
+    $apiurl ="https://api.hit-pay.com/v1/payment-requests/";
+}
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $apiurl.$reference);

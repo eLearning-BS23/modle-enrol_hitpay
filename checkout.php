@@ -43,7 +43,14 @@ $coursename     = required_param('coursename', PARAM_RAW);
 
 
 $apiKey = $config->apikey;
-$apiurl = $config->apiurl;
+$productionenv = $config->productionenv;
+
+if($productionenv == 0) {
+    $apiurl = "https://api.sandbox.hit-pay.com/v1/payment-requests/";
+}
+else {
+    $apiurl ="https://api.hit-pay.com/v1/payment-requests/";
+}
 
 $hitpay_helper = new hitpay_helper($apiKey, $apiurl, $currency, $cost, $email, $courseid, $instanceid);
 $checkout = $hitpay_helper->checkout_helper();
