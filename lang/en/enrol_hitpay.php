@@ -55,5 +55,5 @@ $string['expiredaction_help'] = 'Select action to carry out when user enrolment 
 $string['course'] = 'Course';
 $string['productionenv'] = 'Production Environment';
 $string['productionenv_desc'] = 'Production Environment of HitPay Yes/No';
-$string['status'] = 'Allow sslcommerz enrolments';
-$string['status_desc'] = 'Allow users to use sslcommerz to enrol into a course by default.';
+$string['status'] = 'Allow hitpay enrolments';
+$string['status_desc'] = 'Allow users to use hitpay to enrol into a course by default.';
